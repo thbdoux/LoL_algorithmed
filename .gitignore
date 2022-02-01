@@ -128,4 +128,4 @@ dmypy.json
 # Pyre type checker
 .pyre/
 
-LoL_algorithmed\Nathan\API_key.json
+Nathan\API_key.json
