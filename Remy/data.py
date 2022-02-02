@@ -24,8 +24,8 @@ writer.writerow(["puuid", "date", "lane", "individualPosition",
 
 lol_watcher = LolWatcher(API_KEY)
 
-names = ['Reym', 'Pied à coulisse', 'BobyV2',
-         'Tarek Boudali', 'Philippe Lacheau', 'WAO RANK 1']
+names = ['WAO RANK 1', 'Reym', 'Pied à coulisse', 'BobyV2',
+         'Tarek Boudali', 'Philippe Lacheau']
 
 for name in names:
 
@@ -68,6 +68,8 @@ for name in names:
                 print('future requests wait until the retry-after time passes')
             elif err.response.status_code == 404:
                 print('Error 404.')
+            elif err.response.status_code == 503:
+                print('Error 503.')
             else:
                 raise
         except Exception as error:
