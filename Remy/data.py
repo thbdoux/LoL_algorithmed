@@ -70,3 +70,5 @@ for name in names:
                 print('Error 404.')
             else:
                 raise
+        except Exception as error:
+            print(error)
