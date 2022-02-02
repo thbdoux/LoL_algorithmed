@@ -1,61 +1,56 @@
 from riotwatcher import LolWatcher, ApiError
 import time
 import csv
+import json
 from datetime import datetime
+from methods import *
+
+#----INIT----#
+
+REGION = 'euw1'
+CONTINENT = 'EUROPE'
+SLEEPING_TIME = 2
+MATCHS_SIZE = 500
+
+settings_file = open("API_key.json")
+API_KEY = json.load(settings_file)["API_key"]
+settings_file.close()
 
 file = open("data.csv", "w", newline='')
+writer = csv.writer(file, delimiter=',')
+writer.writerow(["puuid", "date", "lane", "win", "match_id", "championname"])
 
-lol_watcher = LolWatcher('TODO')
+lol_watcher = LolWatcher(API_KEY)
+executed_times = 0
+name = 'Reym'
 
-my_region = 'euw1'
+summoner = getSummonerByName(name)
+all_matchs = getAllMatchsFromSummoner(summoner)
 
-me = lol_watcher.summoner.by_name(my_region, 'BobyV2')
-print(me)
-
-my_ranked_stats = lol_watcher.league.by_summoner(my_region, me['id'])
-# print(my_ranked_stats)
-
-all_500_matchs = []
-
-for x in range(0, 5):
-    all_matchs = lol_watcher.match.matchlist_by_puuid(
-        "europe", me['puuid'], count=100, start=x*100, queue=420)
-    all_500_matchs = all_matchs + all_500_matchs
-    # print(all_matchs)
-    time.sleep(2)
-
-
-print(len(all_500_matchs))
-
-
-i = 0
-
-writer = csv.writer(file, delimiter=';')
-writer.writerow(["puuid","date", "lane", "win", "match_id", "championname"])
-
-for match_id in all_500_matchs:
+for match_id in all_matchs:
     try:
-        detailed_match = lol_watcher.match.by_id("europe", match_id)
-        rank = detailed_match['metadata']['participants'].index(me['puuid'])
+        detailed_match = lol_watcher.match.by_id(CONTINENT, match_id)
+
+        #Not used yet
+        rank = detailed_match['metadata']['participants'].index(
+            summoner['puuid'])
         gamemode = detailed_match['info']['gameMode']
         gametype = detailed_match['info']['gameType']
-
-        win = detailed_match['info']['participants'][rank]['win']
-        lane = detailed_match['info']['participants'][rank]['lane']
         individualPosition = detailed_match['info']['participants'][rank]['individualPosition']
-        championname = detailed_match['info']['participants'][rank]['championName']
-
+        
         timestamp = detailed_match['info']['gameCreation'] / 1000
         dt_object = datetime.utcfromtimestamp(timestamp)
+        lane = detailed_match['info']['participants'][rank]['lane']
+        win = detailed_match['info']['participants'][rank]['win']
+        championname = detailed_match['info']['participants'][rank]['championName']
 
-        #print("Lane : " + lane + "; IndividualPosition : " + individualPosition + "; Win : " + str(win) + "; Gamemode : " + gamemode)
-
-        row = [me['puuid'], dt_object, lane, str(win), match_id, championname]
+        row = [summoner['puuid'], dt_object, lane,
+               str(win), match_id, championname]
         writer.writerow(row)
 
-        time.sleep(1.5)
-        print(i)
-        i += 1
+        time.sleep(SLEEPING_TIME)
+        print(executed_times)
+        executed_times += 1
 
     except ApiError as err:
         if err.response.status_code == 429:

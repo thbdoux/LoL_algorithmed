@@ -129,3 +129,4 @@ dmypy.json
 .pyre/
 
 Nathan/API_key.json
+Remy/settings.json
