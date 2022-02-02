@@ -31,7 +31,7 @@ print(len(all_500_matchs))
 i = 0
 
 writer = csv.writer(file, delimiter=';')
-writer.writerow(["date", "lane", "win", "match_id", "championname"])
+writer.writerow(["puuid","date", "lane", "win", "match_id", "championname"])
 
 for match_id in all_500_matchs:
     try:
@@ -50,7 +50,7 @@ for match_id in all_500_matchs:
 
         #print("Lane : " + lane + "; IndividualPosition : " + individualPosition + "; Win : " + str(win) + "; Gamemode : " + gamemode)
 
-        row = [dt_object, lane, str(win), match_id, championname]
+        row = [me['puuid'], dt_object, lane, str(win), match_id, championname]
         writer.writerow(row)
 
         time.sleep(1.5)
