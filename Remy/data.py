@@ -3,62 +3,70 @@ import time
 import csv
 import json
 from datetime import datetime
-from methods import *
+from methods import methods as m
+
+import os
+cwd = os.path.dirname(os.path.realpath(__file__))
 
 #----INIT----#
 
-REGION = 'euw1'
 CONTINENT = 'EUROPE'
 SLEEPING_TIME = 2
-MATCHS_SIZE = 500
 
-settings_file = open("API_key.json")
+settings_file = open(cwd + "\methods\settings.json", "r")
 API_KEY = json.load(settings_file)["API_key"]
 settings_file.close()
 
 file = open("data.csv", "w", newline='')
 writer = csv.writer(file, delimiter=',')
-writer.writerow(["puuid", "date", "lane", "win", "match_id", "championname"])
+writer.writerow(["puuid", "date", "lane", "individualPosition",
+                "win", "match_id", "championname"])
 
 lol_watcher = LolWatcher(API_KEY)
-executed_times = 0
-name = 'Reym'
 
-summoner = getSummonerByName(name)
-all_matchs = getAllMatchsFromSummoner(summoner)
+names = ['Reym', 'Pied à coulisse', 'BobyV2',
+         'Tarek Boudali', 'Philippe Lacheau', 'WAO RANK 1']
 
-for match_id in all_matchs:
-    try:
-        detailed_match = lol_watcher.match.by_id(CONTINENT, match_id)
+for name in names:
 
-        #Not used yet
-        rank = detailed_match['metadata']['participants'].index(
-            summoner['puuid'])
-        gamemode = detailed_match['info']['gameMode']
-        gametype = detailed_match['info']['gameType']
-        individualPosition = detailed_match['info']['participants'][rank]['individualPosition']
-        
-        timestamp = detailed_match['info']['gameCreation'] / 1000
-        dt_object = datetime.utcfromtimestamp(timestamp)
-        lane = detailed_match['info']['participants'][rank]['lane']
-        win = detailed_match['info']['participants'][rank]['win']
-        championname = detailed_match['info']['participants'][rank]['championName']
+    executed_times = 0
+    summoner = m.getSummonerByName(name)
+    all_matchs = m.getAllMatchsFromSummoner(summoner)
 
-        row = [summoner['puuid'], dt_object, lane,
-               str(win), match_id, championname]
-        writer.writerow(row)
+    for match_id in all_matchs:
+        try:
+            detailed_match = lol_watcher.match.by_id(CONTINENT, match_id)
 
-        time.sleep(SLEEPING_TIME)
-        print(executed_times)
-        executed_times += 1
+            # Not used yet
+            rank = detailed_match['metadata']['participants'].index(
+                summoner['puuid'])
+            gamemode = detailed_match['info']['gameMode']
+            gametype = detailed_match['info']['gameType']
+            #
 
-    except ApiError as err:
-        if err.response.status_code == 429:
-            print('We should retry in {} seconds.'.format(
-                err.response.headers['Retry-After']))
-            print('this retry-after is handled by default by the RiotWatcher library')
-            print('future requests wait until the retry-after time passes')
-        elif err.response.status_code == 404:
-            print('Error 404.')
-        else:
-            raise
+            individualPosition = detailed_match['info']['participants'][rank]['individualPosition']
+            timestamp = detailed_match['info']['gameCreation'] / 1000
+            dt_object = datetime.utcfromtimestamp(timestamp)
+            lane = detailed_match['info']['participants'][rank]['lane']
+            win = detailed_match['info']['participants'][rank]['win']
+            championname = detailed_match['info']['participants'][rank]['championName']
+
+            row = [summoner['puuid'], dt_object, lane, individualPosition,
+                   str(win), match_id, championname]
+            writer.writerow(row)
+
+            time.sleep(SLEEPING_TIME)
+            print(executed_times)
+            executed_times += 1
+
+        except ApiError as err:
+            if err.response.status_code == 429:
+                print('We should retry in {} seconds.'.format(
+                    err.response.headers['Retry-After']))
+                print(
+                    'this retry-after is handled by default by the RiotWatcher library')
+                print('future requests wait until the retry-after time passes')
+            elif err.response.status_code == 404:
+                print('Error 404.')
+            else:
+                raise
