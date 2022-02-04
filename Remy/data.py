@@ -11,7 +11,7 @@ cwd = os.path.dirname(os.path.realpath(__file__))
 #----INIT----#
 
 CONTINENT = 'EUROPE'
-SLEEPING_TIME = 2
+SLEEPING_TIME = 0
 
 settings_file = open(cwd + "\methods\settings.json", "r")
 API_KEY = json.load(settings_file)["API_key"]
@@ -24,11 +24,18 @@ writer.writerow(["puuid", "date", "lane", "individualPosition",
 
 lol_watcher = LolWatcher(API_KEY)
 
-names = ['WAO RANK 1', 'Reym', 'Pied à coulisse', 'BobyV2',
-         'Tarek Boudali', 'Philippe Lacheau']
+#names = ['WAO RANK 1', 'Reym', 'Pied à coulisse', 'BobyV2','Tarek Boudali', 'Philippe Lacheau']
+names = []
+
+challengers = m.getChallengers()
+
+for challenger in challengers['entries']:
+    challengerName = challenger['summonerName']
+    print(challengerName)
+    names.append(challengerName)
 
 for name in names:
-
+    print(name)
     executed_times = 0
     summoner = m.getSummonerByName(name)
     all_matchs = m.getAllMatchsFromSummoner(summoner)
