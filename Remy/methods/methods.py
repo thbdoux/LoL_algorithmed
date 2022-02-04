@@ -7,7 +7,7 @@ cwd = os.path.dirname(os.path.realpath(__file__))
 
 REGION = 'euw1'
 CONTINENT = 'EUROPE'
-SLEEPING_TIME = 2
+SLEEPING_TIME = 0
 MATCHS_SIZE = 500
 
 settings_file = open(cwd + "\settings.json", "r")
@@ -50,3 +50,8 @@ def getAllMatchsFromASummonerName(name):
     summoner = getSummonerByName(name)
     all_matchs = getAllMatchsFromSummoner(summoner)
     return all_matchs
+
+
+def getChallengers():
+    challengers = lol_watcher.league.challenger_by_queue(REGION,"RANKED_SOLO_5x5")
+    return challengers
