@@ -10,7 +10,7 @@ CONTINENT = 'EUROPE'
 SLEEPING_TIME = 0
 MATCHS_SIZE = 500
 
-settings_file = open(cwd + "\settings.json", "r")
+settings_file = open(cwd + "/settings.json", "r")
 API_KEY = json.load(settings_file)["API_key"]
 settings_file.close()
 
